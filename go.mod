@@ -1,3 +1,3 @@
-module capi
+module api
 
 go 1.17
