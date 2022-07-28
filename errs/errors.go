@@ -4,7 +4,7 @@ import "net/http"
 
 type AppErr struct {
 	Code    int    `json:"code,omitempty"`
-	Message string `json:message"`
+	Message string `json:"message"`
 }
 
 func (e AppErr) AsMessage() *AppErr {
