@@ -1,8 +1,8 @@
 package domain
 
 import (
+	"api/errs"
 	"database/sql"
-	"errors"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -21,7 +21,7 @@ func NewCustomerRepositoryDB() CustomerRepositoryDB {
 	return CustomerRepositoryDB{db}
 }
 
-func (d CustomerRepositoryDB) FindByID(customerID string) (*Customer, error) {
+func (d CustomerRepositoryDB) FindByID(customerID string) (*Customer, *errs.AppErr) {
 	query := "select * from customers where customer_id = $1"
 
 	row := d.client.QueryRow(query, customerID)
@@ -30,10 +30,10 @@ func (d CustomerRepositoryDB) FindByID(customerID string) (*Customer, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Println("error customer data not found", err.Error())
-			return nil, errors.New("customer data not found")
+			return nil, errs.NewNotFoundError("customer data not found")
 		} else {
 			log.Println("error scanning customer data", err.Error())
-			return nil, err
+			return nil, errs.NewUnexpectedError("unexpected database error")
 		}
 	}
 	return &c, nil

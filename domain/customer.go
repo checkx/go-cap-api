@@ -1,5 +1,7 @@
 package domain
 
+import "api/errs"
+
 type Customer struct {
 	ID          int    `json:"id" xml:"id"`
 	Name        string `json:"name" xml:"name"`
@@ -11,5 +13,5 @@ type Customer struct {
 
 type CustomerRepository interface {
 	FindAll() ([]Customer, error)
-	FindByID(string) (*Customer, error)
+	FindByID(string) (*Customer, *errs.AppErr)
 }
