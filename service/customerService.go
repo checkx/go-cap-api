@@ -7,7 +7,7 @@ import (
 )
 
 type CustomerService interface {
-	GetAllCustomer() ([]domain.Customer, error)
+	GetAllCustomer(string) ([]dto.CustomerResponse, *errs.AppErr)
 	GetCustomerByID(string) (*dto.CustomerResponse, *errs.AppErr)
 }
 
@@ -15,8 +15,17 @@ type DefaultCustomerService struct {
 	repository domain.CustomerRepository
 }
 
-func (s DefaultCustomerService) GetAllCustomer() ([]domain.Customer, error) {
-	return s.repository.FindAll()
+func (s DefaultCustomerService) GetAllCustomer(status string) ([]dto.CustomerResponse, *errs.AppErr) {
+
+	custs, err := s.repository.FindAll(status)
+	if err != nil {
+		return nil, err
+	}
+	var response []dto.CustomerResponse
+	for _, customer := range custs {
+		response = append(response, customer.ToDTO())
+	}
+	return response, nil
 }
 
 func (s DefaultCustomerService) GetCustomerByID(customerID string) (*dto.CustomerResponse, *errs.AppErr) {
