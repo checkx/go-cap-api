@@ -2,6 +2,8 @@ module capi
 
 go 1.17
 
+//code terupdate
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
