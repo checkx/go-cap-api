@@ -23,6 +23,7 @@ func sanityCheck() {
 			logger.Fatal(fmt.Sprintf("environtment variable %s not defined. terminating application...", envKey))
 		}
 	}
+	logger.Info("Error loading .env file")
 }
 
 func Start() {
