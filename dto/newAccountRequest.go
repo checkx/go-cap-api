@@ -11,12 +11,17 @@ type NewAccountRequest struct {
 	Amount      float64 `json:"amount"`
 }
 
+const (
+	ErrInvalidAmount      = "minimum amount to open new account is 5000"
+	ErrInvalidAccountType = "account type must be checking or saving"
+)
+
 func (r NewAccountRequest) Validate() *errs.AppErr {
 	if r.Amount < 5000 {
-		return errs.NewValidationError("minimum amount to open new account is 5000")
+		return errs.NewValidationError(ErrInvalidAmount)
 	}
 	if strings.ToLower(r.AccountType) != "saving" && strings.ToLower(r.AccountType) != "checking" {
-		return errs.NewValidationError("account type must be checking or saving")
+		return errs.NewValidationError(ErrInvalidAccountType)
 	}
 
 	return nil
