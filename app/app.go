@@ -116,25 +116,30 @@ func loggingMiddleware(next http.Handler) http.Handler {
 
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
 		token := r.Header.Get("Authorization")
-		//split token -> ambil tokennya buang bearernya
-		splitToken := strings.Split(token, "Bearer")
-		if len(splitToken) != 2 {
-			logger.Error("Bearer token not in proper format")
+		// check token validation has bearer token
+		if !strings.Contains(token, "Bearer") {
+			writeResponse(w, http.StatusBadRequest, "Invalid Token!!")
+			return
 		}
-		token = strings.TrimSpace(splitToken[1])
-
-		// parsing token, err := jwt.Parse
-		Token, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		// Bearer token
+		tokenString := ""
+		// split token, ambil tokennya buang bearernya
+		arrayToken := strings.Split(token, " ")
+		if len(arrayToken) == 2 {
+			tokenString = arrayToken[1]
+		}
+		// parsing token, err := jwt.parse {}
+		signedToken, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte("rahasia"), nil
 		})
 		if err != nil {
 			writeResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		//check token validation
-		if Token.Valid {
-			writeResponse(w, http.StatusOK, Token)
+		if signedToken.Valid {
+			writeResponse(w, http.StatusOK, signedToken)
 		} else if errors.Is(err, jwt.ErrTokenMalformed) {
 			writeResponse(w, http.StatusUnauthorized, err.Error())
 		} else if errors.Is(err, jwt.ErrTokenExpired) {
@@ -142,9 +147,5 @@ func authMiddleware(next http.Handler) http.Handler {
 		} else {
 			writeResponse(w, http.StatusUnauthorized, err.Error())
 		}
-
-		logger.Info(token)
-		next.ServeHTTP(w, r)
-
 	})
 }
