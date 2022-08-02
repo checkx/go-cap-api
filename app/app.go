@@ -79,26 +79,25 @@ func Start() {
 	// * create ServeMux
 	mux := mux.NewRouter()
 	mux.Use(loggingMiddleware)
+
 	authR := mux.PathPrefix("/auth").Subrouter()
 	authR.HandleFunc("/login", authH.Login).Methods(http.MethodPost)
-	authR.Use(loggingMiddleware)
 
 	// * defining routes
-
 	// mux.HandleFunc("/auth/login", authH.Login).Methods(http.MethodPost)
+
 	customerR := mux.PathPrefix("/customers").Subrouter()
 	customerR.HandleFunc("/{customer_id:[0-9]+}", ch.getCustomerByID).Methods(http.MethodGet)
 	customerR.HandleFunc("/{customer_id:[0-9]+}/accounts/{account_id:[0-9]+}", ah.MakeTransaction).Methods(http.MethodPost)
 	customerR.Use(authMiddleware)
-	mux.Use(authMiddleware)
 
 	adminR := mux.PathPrefix("/customers").Subrouter()
 	adminR.HandleFunc("", ch.getAllCustomers).Methods(http.MethodGet)
 	adminR.HandleFunc("/{customer_id:[0-9]+}/accounts", ah.NewAccount).Methods(http.MethodPost)
 	adminR.Use(authMiddleware)
 	adminR.Use(isAdminMiddleware)
-	// * starting the server
 
+	// * starting the server
 	serverAddr := os.Getenv("SERVER_ADDRESS")
 	serverPort := os.Getenv("SERVER_PORT")
 
@@ -133,6 +132,7 @@ func loggingMiddleware(next http.Handler) http.Handler {
 
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		// get token from header
 		authorizationHeader := r.Header.Get("Authorization")
 		if !strings.Contains(authorizationHeader, "Bearer") {
